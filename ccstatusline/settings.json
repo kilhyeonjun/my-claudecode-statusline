@@ -1,0 +1,184 @@
+{
+  "version": 3,
+  "lines": [
+    [
+      {
+        "id": "l1-model",
+        "type": "model",
+        "color": "cyan"
+      },
+      {
+        "id": "l1-sep1",
+        "type": "separator"
+      },
+      {
+        "id": "l1-cwd",
+        "type": "current-working-dir",
+        "color": "blue"
+      }
+    ],
+    [
+      {
+        "id": "l2-branch",
+        "type": "git-branch",
+        "color": "magenta"
+      },
+      {
+        "id": "l2-sep1",
+        "type": "separator"
+      },
+      {
+        "id": "l2-changes",
+        "type": "git-changes",
+        "color": "yellow"
+      }
+    ],
+    [
+      {
+        "id": "l3-ctxbar",
+        "type": "context-bar",
+        "color": "green"
+      },
+      {
+        "id": "l3-sep1",
+        "type": "separator"
+      },
+      {
+        "id": "l3-ctxburn",
+        "type": "custom-command",
+        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-burn.sh ctx",
+        "timeout": 2000,
+        "color": "brightBlack",
+        "preserveColors": false
+      }
+    ],
+    [
+      {
+        "id": "l4-cost",
+        "type": "session-cost",
+        "color": "brightYellow"
+      },
+      {
+        "id": "l4-sep1",
+        "type": "separator"
+      },
+      {
+        "id": "l4-clock",
+        "type": "session-clock",
+        "color": "brightBlack"
+      }
+    ],
+    [
+      {
+        "id": "l5-label5h",
+        "type": "custom-text",
+        "customText": "5h:",
+        "color": "brightBlack"
+      },
+      {
+        "id": "l5-sess",
+        "type": "session-usage",
+        "color": "brightCyan",
+        "rawValue": true
+      },
+      {
+        "id": "l5-eta",
+        "type": "custom-text",
+        "customText": "→",
+        "color": "brightBlack"
+      },
+      {
+        "id": "l5-sessreset",
+        "type": "reset-timer",
+        "color": "brightBlack",
+        "rawValue": true
+      },
+      {
+        "id": "l5-sep2",
+        "type": "separator"
+      },
+      {
+        "id": "l5-burn",
+        "type": "custom-command",
+        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-burn.sh 5h",
+        "timeout": 2000,
+        "color": "brightCyan",
+        "preserveColors": false
+      }
+    ],
+    [
+      {
+        "id": "l6-label7d",
+        "type": "custom-text",
+        "customText": "7d:",
+        "color": "brightBlack"
+      },
+      {
+        "id": "l6-week",
+        "type": "weekly-usage",
+        "color": "brightMagenta",
+        "rawValue": true
+      },
+      {
+        "id": "l6-eta",
+        "type": "custom-text",
+        "customText": "→",
+        "color": "brightBlack"
+      },
+      {
+        "id": "l6-weekreset",
+        "type": "weekly-reset-timer",
+        "color": "brightBlack",
+        "rawValue": true
+      },
+      {
+        "id": "l6-sep2",
+        "type": "separator"
+      },
+      {
+        "id": "l6-burn",
+        "type": "custom-command",
+        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-burn.sh 7d",
+        "timeout": 2000,
+        "color": "brightMagenta",
+        "preserveColors": false
+      }
+    ],
+    [
+      {
+        "id": "l7-skills",
+        "type": "skills",
+        "color": "brightMagenta",
+        "metadata": {
+          "mode": "list",
+          "hideWhenEmpty": "true",
+          "listLimit": "6"
+        }
+      }
+    ],
+    [
+      {
+        "id": "l8-agents",
+        "type": "custom-command",
+        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-subagents.sh",
+        "timeout": 2500,
+        "color": "brightGreen",
+        "preserveColors": false
+      }
+    ]
+  ],
+  "flexMode": "full",
+  "compactThreshold": 60,
+  "colorLevel": 2,
+  "defaultPadding": " ",
+  "inheritSeparatorColors": true,
+  "globalBold": true,
+  "powerline": {
+    "enabled": false,
+    "separators": [""],
+    "separatorInvertBackground": [false],
+    "startCaps": [],
+    "endCaps": [],
+    "theme": "nord-aurora"
+  }
+}
