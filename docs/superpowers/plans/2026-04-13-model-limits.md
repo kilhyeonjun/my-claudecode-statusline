@@ -99,6 +99,15 @@ DAY=$(($(date +%s) + 90000))  # ~25h
 R=$(echo '{"rate_limits":{"seven_day":{"used_percentage":37,"resets_at":'"$DAY"'}}}' | bash "$SCRIPT" 7d-reset)
 assert_eq "7d-reset shows days+hours" "1d1h" "$R"
 
+# Boundary: 100% usage
+R=$(echo '{"rate_limits":{"five_hour":{"used_percentage":100,"resets_at":'"$FUTURE"'}}}' | bash "$SCRIPT" 5h-pct)
+assert_eq "5h-pct at 100%" "100.0%" "$R"
+
+# Boundary: reset timestamp already passed → empty (no negative countdown)
+PAST=$(($(date +%s) - 60))
+R=$(echo '{"rate_limits":{"five_hour":{"used_percentage":50,"resets_at":'"$PAST"'}}}' | bash "$SCRIPT" 5h-reset)
+assert_eq "5h-reset empty when reset already passed" "" "$R"
+
 [ "$FAIL" -eq 0 ] && echo "All $PASS tests passed" && exit 0
 echo "$FAIL/$((PASS+FAIL)) tests FAILED" >&2 && exit 1
 ```
@@ -285,13 +294,8 @@ CACHE_TTL=60
 _get_token() {
   local acct raw secret
   raw=$(security dump-keychain 2>/dev/null) || return 1
-  acct=$(printf '%s' "$raw" | awk '
-    /Claude Code-credentials/ { found=1 }
-    found && /"acct"/ {
-      match($0, /"([^"]+)"$/, a)
-      if (a[1] != "") { print a[1]; exit }
-    }
-  ')
+  acct=$(printf '%s' "$raw" | grep -A 3 '"svce".*Claude Code-credentials"' | \
+    grep '"acct"' | sed 's/.*"acct"<blob>="\([^"]*\)".*/\1/' | head -1)
   [ -z "$acct" ] && return 1
   secret=$(security find-generic-password \
     -s "Claude Code-credentials" -a "$acct" -w 2>/dev/null) || return 1
@@ -310,11 +314,14 @@ _refresh_cache() {
   local token
   token=$(_get_token) || return 1
   mkdir -p "$CACHE_DIR"
+  chmod 700 "$CACHE_DIR"
   curl -sf \
     -H "Authorization: Bearer $token" \
     -H "anthropic-beta: oauth-2025-04-20" \
     "https://api.anthropic.com/api/oauth/usage" \
-    > "${CACHE_FILE}.tmp" 2>/dev/null && mv "${CACHE_FILE}.tmp" "$CACHE_FILE" || return 1
+    > "${CACHE_FILE}.tmp" 2>/dev/null && \
+    chmod 600 "${CACHE_FILE}.tmp" && \
+    mv "${CACHE_FILE}.tmp" "$CACHE_FILE" || return 1
 }
 
 # Check cache freshness
@@ -338,8 +345,8 @@ PCT=$(printf '%s' "$ENTRY" | jq -r '.utilization // empty' 2>/dev/null)
 RESETS_ISO=$(printf '%s' "$ENTRY" | jq -r '.resets_at // empty' 2>/dev/null)
 [ -z "$RESETS_ISO" ] && exit 0
 
-# Parse ISO8601 → unix ts (strip fractional + tz)
-RESETS_CLEAN="${RESETS_ISO%%.*}"  # "2026-04-13T05:00:00"
+# Parse ISO8601 → unix ts (strip fractional seconds and/or timezone offset)
+RESETS_CLEAN="${RESETS_ISO%%[.+]*}"  # "2026-04-13T05:00:00"
 RESETS_TS=$(TZ=UTC date -j -f "%Y-%m-%dT%H:%M:%S" "$RESETS_CLEAN" +%s 2>/dev/null \
          || TZ=UTC date -d "${RESETS_CLEAN}Z" +%s 2>/dev/null \
          || echo 0)
@@ -360,7 +367,7 @@ awk -v pct="$PCT" -v rem="$REMAINING" -v label="$LABEL" 'BEGIN {
     if (h == 0) return sprintf("%dd", d)
     return sprintf("%dd%dh", d, h)
   }
-  printf "%s: %.0f%%  →  %s\n", label, pct, fmt(rem)
+  printf "%s: %.0f%%  →  %s", label, pct, fmt(rem)
 }'
 ```
 
@@ -387,6 +394,7 @@ git commit -m "feat: add statusline-model.sh — Sonnet/Opus usage from API cach
 - Modify: `ccstatusline/settings.json`
 
 Replace 4 built-in widgets on lines 5 & 6 with custom-commands. Add 2 model lines.
+Note: model lines use `timeout: 3000` (3s) to allow for API call + 60s cache check latency.
 
 - [ ] **Step 1: Update settings.json**
 
@@ -509,7 +517,20 @@ Note the line numbers of the copy/chmod block for `statusline-burn.sh`.
 for script in statusline-subagents.sh statusline-burn.sh statusline-rate.sh statusline-model.sh; do
 ```
 
-- [ ] **Step 3: Verify install.sh is valid**
+- [ ] **Step 3: Update install.sh completion message**
+
+Find the `• helper scripts:` line in install.sh and add `rate` and `model` to the list:
+
+```bash
+grep -n "helper scripts" install.sh
+```
+
+Update that line to include the new scripts, e.g.:
+```
+echo "  • helper scripts: burn, subagents, rate, model"
+```
+
+- [ ] **Step 4: Verify install.sh is valid**
 
 ```bash
 bash -n install.sh && echo "syntax OK"
@@ -517,7 +538,7 @@ bash -n install.sh && echo "syntax OK"
 
 Expected: `syntax OK`
 
-- [ ] **Step 4: Run dry-run install**
+- [ ] **Step 5: Run dry-run install**
 
 ```bash
 bash install.sh --dry-run 2>&1 | grep -E "rate|model|would"
@@ -525,7 +546,7 @@ bash install.sh --dry-run 2>&1 | grep -E "rate|model|would"
 
 Expected: lines mentioning `statusline-rate.sh` and `statusline-model.sh`
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
 git add install.sh
