@@ -88,7 +88,7 @@ awk -v pct="$PCT" -v rem="$REMAINING" -v label="$LABEL" 'BEGIN {
     if (m == 0) fmt_str = sprintf("%dh", h)
     else fmt_str = sprintf("%dh%dm", h, m)
   } else {
-    d = int(rem/86400); h = int((rem % 86400) / 3600)
+    d = int(rem/86400); h = int((rem % 86400) / 3600 + 0.5)
     if (h == 0) fmt_str = sprintf("%dd", d)
     else fmt_str = sprintf("%dd%dh", d, h)
   }
