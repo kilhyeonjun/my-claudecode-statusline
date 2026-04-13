@@ -76,10 +76,12 @@
         "color": "brightBlack"
       },
       {
-        "id": "l5-sess",
-        "type": "session-usage",
+        "id": "l5-pct",
+        "type": "custom-command",
+        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-rate.sh 5h-pct",
+        "timeout": 2000,
         "color": "brightCyan",
-        "rawValue": true
+        "preserveColors": false
       },
       {
         "id": "l5-eta",
@@ -88,10 +90,12 @@
         "color": "brightBlack"
       },
       {
-        "id": "l5-sessreset",
-        "type": "reset-timer",
+        "id": "l5-reset",
+        "type": "custom-command",
+        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-rate.sh 5h-reset",
+        "timeout": 2000,
         "color": "brightBlack",
-        "rawValue": true
+        "preserveColors": false
       },
       {
         "id": "l5-sep2",
@@ -114,10 +118,12 @@
         "color": "brightBlack"
       },
       {
-        "id": "l6-week",
-        "type": "weekly-usage",
+        "id": "l6-pct",
+        "type": "custom-command",
+        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-rate.sh 7d-pct",
+        "timeout": 2000,
         "color": "brightMagenta",
-        "rawValue": true
+        "preserveColors": false
       },
       {
         "id": "l6-eta",
@@ -126,10 +132,12 @@
         "color": "brightBlack"
       },
       {
-        "id": "l6-weekreset",
-        "type": "weekly-reset-timer",
+        "id": "l6-reset",
+        "type": "custom-command",
+        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-rate.sh 7d-reset",
+        "timeout": 2000,
         "color": "brightBlack",
-        "rawValue": true
+        "preserveColors": false
       },
       {
         "id": "l6-sep2",
@@ -146,7 +154,27 @@
     ],
     [
       {
-        "id": "l7-skills",
+        "id": "l7-sonnet",
+        "type": "custom-command",
+        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-model.sh sonnet",
+        "timeout": 3000,
+        "color": "brightCyan",
+        "preserveColors": false
+      }
+    ],
+    [
+      {
+        "id": "l8-opus",
+        "type": "custom-command",
+        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-model.sh opus",
+        "timeout": 3000,
+        "color": "brightMagenta",
+        "preserveColors": false
+      }
+    ],
+    [
+      {
+        "id": "l9-skills",
         "type": "skills",
         "color": "brightMagenta",
         "metadata": {
@@ -158,7 +186,7 @@
     ],
     [
       {
-        "id": "l8-agents",
+        "id": "l10-agents",
         "type": "custom-command",
         "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-subagents.sh",
         "timeout": 2500,
