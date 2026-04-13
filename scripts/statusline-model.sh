@@ -16,7 +16,7 @@ esac
 CACHE_DIR="$HOME/.cache/my-claudecode-statusline"
 # Allow test override
 CACHE_FILE="${STATUSLINE_TEST_CACHE:-$CACHE_DIR/usage.json}"
-CACHE_TTL=60
+CACHE_TTL=30
 
 _get_token() {
   local secret
