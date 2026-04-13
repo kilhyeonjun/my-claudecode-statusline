@@ -173,22 +173,12 @@
       }
     ],
     [
-      { "id": "l8-label", "type": "custom-text", "customText": "Opu:", "color": "brightBlack" },
       {
-        "id": "l8-pct",
+        "id": "l8-opus",
         "type": "custom-command",
-        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-model.sh opus-pct",
+        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-model.sh opus-line",
         "timeout": 3000,
         "color": "brightMagenta",
-        "preserveColors": false
-      },
-      { "id": "l8-eta", "type": "custom-text", "customText": "→", "color": "brightBlack" },
-      {
-        "id": "l8-reset",
-        "type": "custom-command",
-        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-model.sh opus-reset",
-        "timeout": 3000,
-        "color": "brightBlack",
         "preserveColors": false
       }
     ],

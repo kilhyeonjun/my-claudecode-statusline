@@ -9,6 +9,7 @@ MODE="$1"
 case "$MODE" in
   sonnet-pct|sonnet-reset) FIELD="seven_day_sonnet" ;;
   opus-pct|opus-reset)     FIELD="seven_day_opus" ;;
+  opus-line)               FIELD="seven_day_opus" ;;
   *)                       exit 0 ;;
 esac
 
@@ -71,6 +72,34 @@ case "$MODE" in
     ;;
 esac
 
+# Combined line mode (opus-line): "Opu: 14% → 2h" or empty
+case "$MODE" in
+  opus-line)
+    PCT=$(printf '%s' "$ENTRY" | jq -r '.utilization // empty' 2>/dev/null)
+    [ -z "$PCT" ] && exit 0
+    RESETS_ISO=$(printf '%s' "$ENTRY" | jq -r '.resets_at // empty' 2>/dev/null)
+    [ -z "$RESETS_ISO" ] && exit 0
+    RESETS_CLEAN="${RESETS_ISO%%[.+]*}"
+    RESETS_TS=$(TZ=UTC date -j -f "%Y-%m-%dT%H:%M:%S" "$RESETS_CLEAN" +%s 2>/dev/null \
+             || TZ=UTC date -d "${RESETS_CLEAN}Z" +%s 2>/dev/null || echo 0)
+    NOW=$(date +%s); REMAINING=$((RESETS_TS - NOW))
+    [ "$REMAINING" -le 0 ] && printf 'Opu: %.1f%%' "$PCT" && exit 0
+    awk -v pct="$PCT" -v r="$REMAINING" 'BEGIN {
+      r = int(r/60 + 0.5) * 60
+      if (r < 3600) fmt = sprintf("%dm", int(r/60))
+      else if (r < 86400) {
+        h = int(r/3600); m = int((r % 3600) / 60)
+        if (m == 0) fmt = sprintf("%dh", h); else fmt = sprintf("%dh%dm", h, m)
+      } else {
+        d = int(r/86400); h = int((r % 86400) / 3600)
+        if (h == 0) fmt = sprintf("%dd", d); else fmt = sprintf("%dd%dh", d, h)
+      }
+      printf "Opu: %.1f%%  \xe2\x86\x92  %s", pct, fmt
+    }'
+    exit 0
+    ;;
+esac
+
 # Reset mode
 RESETS_ISO=$(printf '%s' "$ENTRY" | jq -r '.resets_at // empty' 2>/dev/null)
 [ -z "$RESETS_ISO" ] && exit 0
@@ -86,13 +115,14 @@ REMAINING=$((RESETS_TS - NOW))
 [ "$REMAINING" -le 0 ] && exit 0
 
 awk -v r="$REMAINING" 'BEGIN {
-  if (r < 3600) fmt = sprintf("%dm", int(r/60 + 0.5))
+  r = int(r/60 + 0.5) * 60
+  if (r < 3600) fmt = sprintf("%dm", int(r/60))
   else if (r < 86400) {
-    h = int(r/3600); m = int((r % 3600) / 60 + 0.5)
+    h = int(r/3600); m = int((r % 3600) / 60)
     if (m == 0) fmt = sprintf("%dh", h)
     else fmt = sprintf("%dh%dm", h, m)
   } else {
-    d = int(r/86400); h = int((r % 86400) / 3600 + 0.5)
+    d = int(r/86400); h = int((r % 86400) / 3600)
     if (h == 0) fmt = sprintf("%dd", d)
     else fmt = sprintf("%dd%dh", d, h)
   }

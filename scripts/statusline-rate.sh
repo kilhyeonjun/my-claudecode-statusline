@@ -32,14 +32,16 @@ REMAINING=$((RESETS - NOW))
 [ "$REMAINING" -le 0 ] && exit 0
 
 awk -v r="$REMAINING" 'BEGIN {
+  # round to nearest minute, then recompute to avoid "3h60m" overflow
+  r = int(r/60 + 0.5) * 60
   if (r < 3600) {
-    print sprintf("%dm", int(r/60 + 0.5))
+    print sprintf("%dm", int(r/60))
   } else if (r < 86400) {
-    h = int(r/3600); m = int((r % 3600) / 60 + 0.5)
+    h = int(r/3600); m = int((r % 3600) / 60)
     if (m == 0) print sprintf("%dh", h)
     else print sprintf("%dh%dm", h, m)
   } else {
-    d = int(r/86400); h = int((r % 86400) / 3600 + 0.5)
+    d = int(r/86400); h = int((r % 86400) / 3600)
     if (h == 0) print sprintf("%dd", d)
     else print sprintf("%dd%dh", d, h)
   }
