@@ -82,9 +82,9 @@ REMAINING=$((RESETS_TS - NOW))
 
 awk -v pct="$PCT" -v rem="$REMAINING" -v label="$LABEL" 'BEGIN {
   if (rem <= 0) fmt_str = "soon"
-  else if (rem < 3600) fmt_str = sprintf("%dm", int(rem/60))
+  else if (rem < 3600) fmt_str = sprintf("%dm", int(rem/60 + 0.5))
   else if (rem < 86400) {
-    h = int(rem/3600); m = int((rem % 3600) / 60)
+    h = int(rem/3600); m = int((rem % 3600) / 60 + 0.5)
     if (m == 0) fmt_str = sprintf("%dh", h)
     else fmt_str = sprintf("%dh%dm", h, m)
   } else {
