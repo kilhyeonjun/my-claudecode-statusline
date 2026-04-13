@@ -1,15 +1,15 @@
 #!/bin/bash
 # Displays Sonnet/Opus model-specific usage from Claude usage API.
 #
-# Usage: bash statusline-model.sh {sonnet|opus}
-# Output: "Son: 14% → 2h42m" or empty (auto-hidden by ccstatusline)
+# Usage: bash statusline-model.sh {sonnet-pct|sonnet-reset|opus-pct|opus-reset}
+# Output: percentage "16%" or reset "4h11m", or empty (auto-hidden by ccstatusline)
 set -e
 
 MODE="$1"
 case "$MODE" in
-  sonnet) FIELD="seven_day_sonnet"; LABEL="Son" ;;
-  opus)   FIELD="seven_day_opus";   LABEL="Opu" ;;
-  *)      exit 0 ;;
+  sonnet-pct|sonnet-reset) FIELD="seven_day_sonnet" ;;
+  opus-pct|opus-reset)     FIELD="seven_day_opus" ;;
+  *)                       exit 0 ;;
 esac
 
 CACHE_DIR="$HOME/.cache/my-claudecode-statusline"
@@ -61,9 +61,17 @@ fi
 ENTRY=$(jq -r ".${FIELD} // empty" "$CACHE_FILE" 2>/dev/null)
 [ -z "$ENTRY" ] || [ "$ENTRY" = "null" ] && exit 0
 
-PCT=$(printf '%s' "$ENTRY" | jq -r '.utilization // empty' 2>/dev/null)
-[ -z "$PCT" ] && exit 0
+# Percentage mode
+case "$MODE" in
+  *-pct)
+    PCT=$(printf '%s' "$ENTRY" | jq -r '.utilization // empty' 2>/dev/null)
+    [ -z "$PCT" ] && exit 0
+    printf '%.1f%%' "$PCT"
+    exit 0
+    ;;
+esac
 
+# Reset mode
 RESETS_ISO=$(printf '%s' "$ENTRY" | jq -r '.resets_at // empty' 2>/dev/null)
 [ -z "$RESETS_ISO" ] && exit 0
 
@@ -75,18 +83,18 @@ RESETS_TS=$(TZ=UTC date -j -f "%Y-%m-%dT%H:%M:%S" "$RESETS_CLEAN" +%s 2>/dev/nul
 
 NOW=$(date +%s)
 REMAINING=$((RESETS_TS - NOW))
+[ "$REMAINING" -le 0 ] && exit 0
 
-awk -v pct="$PCT" -v rem="$REMAINING" -v label="$LABEL" 'BEGIN {
-  if (rem <= 0) fmt_str = "soon"
-  else if (rem < 3600) fmt_str = sprintf("%dm", int(rem/60 + 0.5))
-  else if (rem < 86400) {
-    h = int(rem/3600); m = int((rem % 3600) / 60 + 0.5)
-    if (m == 0) fmt_str = sprintf("%dh", h)
-    else fmt_str = sprintf("%dh%dm", h, m)
+awk -v r="$REMAINING" 'BEGIN {
+  if (r < 3600) fmt = sprintf("%dm", int(r/60 + 0.5))
+  else if (r < 86400) {
+    h = int(r/3600); m = int((r % 3600) / 60 + 0.5)
+    if (m == 0) fmt = sprintf("%dh", h)
+    else fmt = sprintf("%dh%dm", h, m)
   } else {
-    d = int(rem/86400); h = int((rem % 86400) / 3600 + 0.5)
-    if (h == 0) fmt_str = sprintf("%dd", d)
-    else fmt_str = sprintf("%dd%dh", d, h)
+    d = int(r/86400); h = int((r % 86400) / 3600 + 0.5)
+    if (h == 0) fmt = sprintf("%dd", d)
+    else fmt = sprintf("%dd%dh", d, h)
   }
-  printf "%s: %.0f%%  →  %s", label, pct, fmt_str
+  print fmt
 }'
