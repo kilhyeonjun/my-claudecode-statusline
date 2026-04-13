@@ -18,13 +18,9 @@ CACHE_FILE="${STATUSLINE_TEST_CACHE:-$CACHE_DIR/usage.json}"
 CACHE_TTL=60
 
 _get_token() {
-  local acct raw secret
-  raw=$(security dump-keychain 2>/dev/null) || return 1
-  acct=$(printf '%s' "$raw" | grep -A 3 '"svce".*Claude Code-credentials"' | \
-    grep '"acct"' | sed 's/.*"acct"<blob>="\([^"]*\)".*/\1/' | head -1)
-  [ -z "$acct" ] && return 1
+  local secret
   secret=$(security find-generic-password \
-    -s "Claude Code-credentials" -a "$acct" -w 2>/dev/null) || return 1
+    -s "Claude Code-credentials" -w 2>/dev/null) || return 1
   printf '%s' "$secret" | python3 -c "
 import sys, json
 try:
