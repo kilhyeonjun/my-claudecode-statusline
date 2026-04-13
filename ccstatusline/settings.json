@@ -170,6 +170,15 @@
         "timeout": 3000,
         "color": "brightBlack",
         "preserveColors": false
+      },
+      { "id": "l7-sep2", "type": "separator" },
+      {
+        "id": "l7-burn",
+        "type": "custom-command",
+        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-model.sh sonnet-burn",
+        "timeout": 3000,
+        "color": "brightCyan",
+        "preserveColors": false
       }
     ],
     [

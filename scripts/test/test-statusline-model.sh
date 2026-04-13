@@ -50,6 +50,34 @@ assert_eq "opus-reset empty when null" "" "$R"
 R=$(STATUSLINE_TEST_CACHE="$CACHE_DIR/usage.json" bash "$SCRIPT" bogus)
 assert_eq "unknown mode exits empty" "" "$R"
 
+# Test: sonnet-burn — normal case (resets ~3 days out, half used)
+HALF_RESET=$(date -u -v+3d "+%Y-%m-%dT%H:%M:%S.000000+00:00" 2>/dev/null \
+  || date -u -d "3 days" "+%Y-%m-%dT%H:%M:%S.000000+00:00" 2>/dev/null)
+cat > "$CACHE_DIR/usage.json" <<EOF
+{"seven_day_sonnet":{"utilization":50,"resets_at":"$HALF_RESET"},"seven_day_opus":null}
+EOF
+touch "$CACHE_DIR/usage.json"
+R=$(STATUSLINE_TEST_CACHE="$CACHE_DIR/usage.json" bash "$SCRIPT" sonnet-burn)
+assert_match "sonnet-burn shows rate" "[0-9]\.[0-9]x" "$R"
+assert_match "sonnet-burn shows projected" "ends ~[0-9]+" "$R"
+
+# Test: sonnet-burn — past reset → empty
+PAST_ISO="2020-01-01T00:00:00.000000+00:00"
+cat > "$CACHE_DIR/usage.json" <<EOF
+{"seven_day_sonnet":{"utilization":50,"resets_at":"$PAST_ISO"},"seven_day_opus":null}
+EOF
+touch "$CACHE_DIR/usage.json"
+R=$(STATUSLINE_TEST_CACHE="$CACHE_DIR/usage.json" bash "$SCRIPT" sonnet-burn)
+assert_eq "sonnet-burn empty when reset passed" "" "$R"
+
+# Test: sonnet-burn — far future reset (elapsed ≤ 60) → empty
+cat > "$CACHE_DIR/usage.json" <<EOF
+{"seven_day_sonnet":{"utilization":14,"resets_at":"$FUTURE_ISO"},"seven_day_opus":null}
+EOF
+touch "$CACHE_DIR/usage.json"
+R=$(STATUSLINE_TEST_CACHE="$CACHE_DIR/usage.json" bash "$SCRIPT" sonnet-burn)
+assert_eq "sonnet-burn empty when elapsed too short" "" "$R"
+
 # Test: cache missing entirely → empty (no API call in test env)
 rm -f "$CACHE_DIR/usage.json"
 R=$(STATUSLINE_SKIP_FETCH=1 bash "$SCRIPT" sonnet-pct)
