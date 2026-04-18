@@ -1,25 +1,27 @@
 #!/bin/bash
-# Display auto-pilot indicator when a fresh marker file exists in the current project's .claude/.
-# Marker format: .auto-pilot-active-<PID> (created by /auto-pilot slash command in kilhyeonjun-harness).
-# Shows "🔓 AUTO" if any marker file < 24h old exists in $CLAUDE_PROJECT_DIR/.claude/.
-# Silent if CLAUDE_PROJECT_DIR unset, marker dir missing, or all markers stale.
+# Display auto-pilot status (always visible).
+# Reads marker from ~/.claude/.auto-pilot-active-*. If ANY fresh (< 24h) marker exists in the
+# current user's $HOME/.claude/, show 🔓 ON. Otherwise 🔒 OFF.
+#
+# Marker path: $HOME/.claude/.auto-pilot-active-<PID> (user-global; see state-placement.md)
+# PID scoping for strict isolation is at the hook layer — statusline is a visual cue.
 #
 # Usage: bash statusline-autopilot.sh
-# Input: Claude Code StatusJSON on stdin (ignored — env var suffices)
+# Input: Claude Code StatusJSON on stdin (ignored — status comes from filesystem)
 set -u
 
-# Consume stdin to not leave data in the pipe buffer (even though we don't use it)
+# Consume stdin to avoid SIGPIPE from upstream
 cat >/dev/null 2>&1 || true
 
-PROJECT_DIR="${CLAUDE_PROJECT_DIR:-}"
-[ -z "$PROJECT_DIR" ] && exit 0
+MARKER_DIR="$HOME/.claude"
+STATUS="🔒 OFF"
 
-MARKER_DIR="$PROJECT_DIR/.claude"
-[ -d "$MARKER_DIR" ] || exit 0
+if [ -d "$MARKER_DIR" ]; then
+  FRESH=$(find "$MARKER_DIR" -maxdepth 1 -name ".auto-pilot-active-*" -type f -mtime -1 2>/dev/null | head -1)
+  if [ -n "$FRESH" ]; then
+    STATUS="🔓 ON"
+  fi
+fi
 
-# Find any non-stale (< 24h) auto-pilot marker
-FRESH=$(find "$MARKER_DIR" -maxdepth 1 -name ".auto-pilot-active-*" -type f -mtime -1 2>/dev/null | head -1)
-[ -z "$FRESH" ] && exit 0
-
-echo "🔓 AUTO |"
+echo "$STATUS"
 exit 0

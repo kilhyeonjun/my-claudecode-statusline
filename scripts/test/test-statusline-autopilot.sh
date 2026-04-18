@@ -15,34 +15,33 @@ assert_output() {
   fi
 }
 
-# Test 1: No CLAUDE_PROJECT_DIR set — silent
-R=$(CLAUDE_PROJECT_DIR="" bash "$SCRIPT" </dev/null 2>&1) || true
-assert_output "no CLAUDE_PROJECT_DIR — silent" "" "$R"
+# Test 1: HOME with no .claude/ → 🔒 OFF
+HOME_NO_CLAUDE=$(mktemp -d)
+R=$(echo '{}' | HOME="$HOME_NO_CLAUDE" bash "$SCRIPT" 2>&1) || true
+assert_output "no .claude/ → OFF" "🔒 OFF" "$R"
+rm -rf "$HOME_NO_CLAUDE"
 
-# Test 2: Marker dir doesn't exist — silent
-TESTDIR=$(mktemp -d)
-R=$(CLAUDE_PROJECT_DIR="$TESTDIR" bash "$SCRIPT" </dev/null 2>&1) || true
-assert_output "marker dir missing — silent" "" "$R"
-rmdir "$TESTDIR"
+# Test 2: HOME with empty .claude/ → 🔒 OFF
+HOME_EMPTY=$(mktemp -d)
+mkdir -p "$HOME_EMPTY/.claude"
+R=$(echo '{}' | HOME="$HOME_EMPTY" bash "$SCRIPT" 2>&1) || true
+assert_output "empty .claude → OFF" "🔒 OFF" "$R"
+rm -rf "$HOME_EMPTY"
 
-# Test 3: Marker dir exists, but no markers — silent
-TESTDIR=$(mktemp -d)
-mkdir -p "$TESTDIR/.claude"
-R=$(CLAUDE_PROJECT_DIR="$TESTDIR" bash "$SCRIPT" </dev/null 2>&1) || true
-assert_output "marker dir empty — silent" "" "$R"
-rm -rf "$TESTDIR"
+# Test 3: HOME with fresh marker → 🔓 ON
+HOME_ON=$(mktemp -d)
+mkdir -p "$HOME_ON/.claude"
+touch "$HOME_ON/.claude/.auto-pilot-active-99999"
+R=$(echo '{}' | HOME="$HOME_ON" bash "$SCRIPT" 2>&1) || true
+assert_output "fresh marker → ON" "🔓 ON" "$R"
+rm -rf "$HOME_ON"
 
-# Test 4: Fresh marker exists — output 🔓 AUTO with trailing separator
-TESTDIR=$(mktemp -d)
-mkdir -p "$TESTDIR/.claude"
-touch "$TESTDIR/.claude/.auto-pilot-active-99999"
-R=$(CLAUDE_PROJECT_DIR="$TESTDIR" bash "$SCRIPT" </dev/null 2>&1) || true
-assert_output "fresh marker present — shows 🔓 AUTO |" "🔓 AUTO |" "$R"
-rm -rf "$TESTDIR"
-
-# Test 5: Stdin consumed (no SIGPIPE)
-R=$(printf '{"test":"json"}' | CLAUDE_PROJECT_DIR="" bash "$SCRIPT" 2>&1) || true
-assert_output "stdin consumed (no SIGPIPE)" "" "$R"
+# Test 4: stdin consumed (no SIGPIPE)
+HOME_EMPTY=$(mktemp -d)
+mkdir -p "$HOME_EMPTY/.claude"
+OUT=$(echo 'noise' | HOME="$HOME_EMPTY" bash "$SCRIPT" 2>&1)
+[ "$OUT" = "🔒 OFF" ] && echo "PASS: stdin consumed, no error" && PASS=$((PASS+1)) || (echo "FAIL: stdin consumed, expected '🔒 OFF' got '$OUT'" && FAIL=$((FAIL+1)))
+rm -rf "$HOME_EMPTY"
 
 echo ""
 echo "=== Results ==="

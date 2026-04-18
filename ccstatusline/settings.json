@@ -20,6 +20,10 @@
         "preserveColors": false
       },
       {
+        "id": "l1-sep2",
+        "type": "separator"
+      },
+      {
         "id": "l1-cwd",
         "type": "current-working-dir",
         "color": "blue"
