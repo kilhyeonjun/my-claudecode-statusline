@@ -32,12 +32,12 @@ R=$(CLAUDE_PROJECT_DIR="$TESTDIR" bash "$SCRIPT" </dev/null 2>&1) || true
 assert_output "marker dir empty — silent" "" "$R"
 rm -rf "$TESTDIR"
 
-# Test 4: Fresh marker exists — output 🔓 AUTO
+# Test 4: Fresh marker exists — output 🔓 AUTO with trailing separator
 TESTDIR=$(mktemp -d)
 mkdir -p "$TESTDIR/.claude"
 touch "$TESTDIR/.claude/.auto-pilot-active-99999"
 R=$(CLAUDE_PROJECT_DIR="$TESTDIR" bash "$SCRIPT" </dev/null 2>&1) || true
-assert_output "fresh marker present — shows 🔓 AUTO" "🔓 AUTO" "$R"
+assert_output "fresh marker present — shows 🔓 AUTO |" "🔓 AUTO |" "$R"
 rm -rf "$TESTDIR"
 
 # Test 5: Stdin consumed (no SIGPIPE)

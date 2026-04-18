@@ -21,5 +21,5 @@ MARKER_DIR="$PROJECT_DIR/.claude"
 FRESH=$(find "$MARKER_DIR" -maxdepth 1 -name ".auto-pilot-active-*" -type f -mtime -1 2>/dev/null | head -1)
 [ -z "$FRESH" ] && exit 0
 
-echo "🔓 AUTO"
+echo "🔓 AUTO |"
 exit 0
