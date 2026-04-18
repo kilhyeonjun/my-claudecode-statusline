@@ -15,6 +15,18 @@
         "id": "l1-cwd",
         "type": "current-working-dir",
         "color": "blue"
+      },
+      {
+        "id": "l1-sep2",
+        "type": "separator"
+      },
+      {
+        "id": "l1-autopilot",
+        "type": "custom-command",
+        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-autopilot.sh",
+        "timeout": 1500,
+        "color": "brightYellow",
+        "preserveColors": false
       }
     ],
     [

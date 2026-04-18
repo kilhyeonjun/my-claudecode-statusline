@@ -108,7 +108,7 @@ info "installing helper scripts to $CLAUDE_SCRIPTS"
 if [ "$DRY_RUN" = "0" ]; then
   mkdir -p "$CLAUDE_SCRIPTS"
 fi
-for script in statusline-subagents.sh statusline-burn.sh statusline-rate.sh statusline-model.sh; do
+for script in statusline-subagents.sh statusline-burn.sh statusline-rate.sh statusline-model.sh statusline-autopilot.sh; do
   src="$REPO_DIR/scripts/$script"
   dst="$CLAUDE_SCRIPTS/$script"
   if [ ! -f "$src" ]; then
@@ -221,7 +221,7 @@ printf '\n%sinstallation complete%s\n\n' "$BOLD$GREEN" "$RESET"
 cat <<EOF
 What's installed:
   • ccstatusline:         $CCSL_BIN
-  • helper scripts:       $CLAUDE_SCRIPTS/statusline-{subagents,burn,rate,model}.sh
+  • helper scripts:       $CLAUDE_SCRIPTS/statusline-{subagents,burn,rate,model,autopilot}.sh
   • ccstatusline config:  $CCSL_SETTINGS
   • Claude Code settings: statusLine + Skill hooks merged into $SETTINGS_JSON
 
