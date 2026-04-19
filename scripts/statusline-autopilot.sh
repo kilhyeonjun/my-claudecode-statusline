@@ -1,23 +1,25 @@
 #!/bin/bash
-# Display auto-pilot status for THIS session only (per-PPID).
-# Reads marker from ~/.claude/.auto-pilot-active-$PPID (Claude Code process).
-# Shows 🔓 ON only when current session's marker exists. Otherwise 🔒 OFF.
+# Display auto-pilot status for THIS session only.
+# Uses $SHELL_PID (Claude Code process PID; env-propagated through nested
+# processes). Falls back to $PPID if SHELL_PID unset.
 #
-# Why per-PPID: a shared "ANY marker fresh" scan causes sessions that never
-# activated auto-pilot to visually show ON when a sibling session activated it.
+# Why not $PPID: this script is invoked by ccstatusline as a widget, so
+# $PPID is ccstatusline's PID, not Claude's. SHELL_PID is env-inherited
+# from Claude Code and reliable across invocation depth.
+#
 # See .claude/rules/state-placement.md (PID scoping pattern).
 #
 # Usage: bash statusline-autopilot.sh
-# Input: Claude Code StatusJSON on stdin (ignored — status comes from filesystem)
+# Input: Claude Code StatusJSON on stdin (ignored)
 set -u
 
-# Consume stdin to avoid SIGPIPE from upstream
 cat >/dev/null 2>&1 || true
 
 MARKER_DIR="$HOME/.claude"
+CLAUDE_PID="${SHELL_PID:-$PPID}"
 STATUS="🔒 OFF"
 
-if [ -f "$MARKER_DIR/.auto-pilot-active-$PPID" ]; then
+if [ -f "$MARKER_DIR/.auto-pilot-active-$CLAUDE_PID" ]; then
   STATUS="🔓 ON"
 fi
 
