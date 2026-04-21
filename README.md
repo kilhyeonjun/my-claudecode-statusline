@@ -104,16 +104,18 @@ The ccstatusline config lives at `ccstatusline/settings.json` as a template
 with a single placeholder (`__CLAUDE_SCRIPTS__`) that the installer replaces
 with the real path.
 
-| Line | Widgets                                                              |
-| ---- | -------------------------------------------------------------------- |
-| 1    | `model` · `current-working-dir`                                      |
-| 2    | `git-branch` · `git-changes`                                         |
-| 3    | `context-bar` · custom-command (`statusline-burn.sh ctx`)            |
-| 4    | `session-cost` · `session-clock`                                     |
-| 5    | `5h:` · `session-usage` → `reset-timer` · custom-command (`5h`)      |
-| 6    | `7d:` · `weekly-usage` → `weekly-reset-timer` · custom-command (`7d`)|
-| 7    | `skills` (list mode, `hideWhenEmpty`)                                |
-| 8    | custom-command (`statusline-subagents.sh`)                           |
+| Line | Widgets                                                   |
+| ---- | --------------------------------------------------------- |
+| 1    | `model` · `autopilot` · `current-working-dir`             |
+| 2    | `git-branch` · `git-changes`                              |
+| 3    | `context-bar` · custom-command (`statusline-burn.sh ctx`) |
+| 4    | `session-cost` · `session-clock`                          |
+| 5    | custom-command (`statusline-line.sh 5h`)                  |
+| 6    | custom-command (`statusline-line.sh 7d`)                  |
+| 7    | custom-command (`statusline-line.sh sonnet`)              |
+| 8    | custom-command (`statusline-line.sh opus`)                |
+| 9    | `skills` (list mode, `hideWhenEmpty`)                     |
+| 10   | custom-command (`statusline-subagents.sh`)                |
 
 `flexMode` is set to `"full"` — the status line uses the full terminal width
 instead of the default `full-minus-40`, which avoids truncating long paths.
@@ -155,8 +157,11 @@ estimated.
 ## Notes
 
 - **Rate limit widgets (5h, 7d) require a Claude.ai Pro/Max subscription.**
-  API-only accounts will see `ctx` burn but blank 5h/7d lines. The burn script
-  exits silently when `rate_limits` is absent, so no "no data" noise.
+  API-only accounts will see `ctx` burn but no 5h/7d rows. The combined line
+  script exits silently when `rate_limits` is absent, so no "no data" noise.
+- **Gateway-backed sessions hide OAuth-only model rows.** Local Kiro/Codex-style
+  gateways (`localhost` / `127.0.0.1` on ports `8000`, `8317`, `8318`) suppress
+  the Sonnet/Opus usage rows because those rows depend on Anthropic OAuth usage.
 - **Tested against ccstatusline v2.2.8** as of 2026-04. If widget type names
   change upstream, the template may need updates.
 - The Skills widget shows nothing until a skill is actually invoked, because

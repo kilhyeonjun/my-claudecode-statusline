@@ -1,8 +1,14 @@
 #!/bin/bash
 set -e
 SCRIPT="$(cd "$(dirname "$0")/.." && pwd)/statusline-line.sh"
+SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 CACHE_DIR="$HOME/.cache/my-claudecode-statusline"
+TMP_HOME="$(mktemp -d)"
 PASS=0; FAIL=0
+cleanup() {
+  rm -rf "$TMP_HOME"
+}
+trap cleanup EXIT
 
 assert_eq() {
   local desc="$1" expected="$2" actual="$3"
@@ -28,7 +34,7 @@ FIVE_RESET=$((NOW + 14400))
 SEVEN_RESET=$((NOW + 432000))
 MODEL_RESET=$(date -u -v+3d "+%Y-%m-%dT%H:%M:%S.000000+00:00" 2>/dev/null || date -u -d "3 days" "+%Y-%m-%dT%H:%M:%S.000000+00:00" 2>/dev/null)
 
-R=$(printf '%s' '{"rate_limits":{"five_hour":{"used_percentage":19,"resets_at":'"$FIVE_RESET"'}}}' | ANTHROPIC_BASE_URL="" bash "$SCRIPT" 5h)
+R=$(printf '%s' '{"rate_limits":{"five_hour":{"used_percentage":19,"resets_at":'"$FIVE_RESET"'}}}' | HOME="$TMP_HOME" STATUSLINE_SCRIPTS_DIR="$SCRIPT_DIR" ANTHROPIC_BASE_URL="" bash "$SCRIPT" 5h)
 assert_match "5h line shows full combined output" '^5h: 19\.0% .*ends ~95%$' "$R"
 
 R=$(printf '%s' '{}' | ANTHROPIC_BASE_URL="" bash "$SCRIPT" 5h)

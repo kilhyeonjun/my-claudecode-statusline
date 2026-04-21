@@ -33,7 +33,7 @@ if ! command -v jq >/dev/null 2>&1; then
   exit 1
 fi
 
-for script in statusline-subagents.sh statusline-burn.sh; do
+for script in statusline-subagents.sh statusline-burn.sh statusline-rate.sh statusline-model.sh statusline-line.sh statusline-autopilot.sh; do
   f="$CLAUDE_SCRIPTS/$script"
   if [ -f "$f" ]; then
     if [ "$DRY_RUN" = "1" ]; then

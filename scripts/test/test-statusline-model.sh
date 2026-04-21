@@ -84,9 +84,13 @@ cat > "$CACHE_DIR/usage.json" <<EOF
 EOF
 touch "$CACHE_DIR/usage.json"
 R=$(ANTHROPIC_BASE_URL="http://127.0.0.1:8317" STATUSLINE_TEST_CACHE="$CACHE_DIR/usage.json" bash "$SCRIPT" sonnet-pct)
-assert_eq "sonnet-pct empty for gateway provider" "" "$R"
+assert_eq "sonnet-pct empty for codex gateway provider" "" "$R"
 R=$(ANTHROPIC_BASE_URL="http://127.0.0.1:8317" STATUSLINE_TEST_CACHE="$CACHE_DIR/usage.json" bash "$SCRIPT" opus-line)
-assert_eq "opus-line empty for gateway provider" "" "$R"
+assert_eq "opus-line empty for codex gateway provider" "" "$R"
+R=$(ANTHROPIC_BASE_URL="http://localhost:8000" STATUSLINE_TEST_CACHE="$CACHE_DIR/usage.json" bash "$SCRIPT" sonnet-pct)
+assert_eq "sonnet-pct empty for kiro gateway provider" "" "$R"
+R=$(ANTHROPIC_BASE_URL="https://proxy.example.com" STATUSLINE_TEST_CACHE="$CACHE_DIR/usage.json" bash "$SCRIPT" sonnet-pct)
+assert_match "sonnet-pct still shows for non-gateway proxy" "14" "$R"
 
 # Test: cache missing entirely → empty (no API call in test env)
 rm -f "$CACHE_DIR/usage.json"

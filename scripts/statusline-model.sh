@@ -13,7 +13,11 @@ case "$MODE" in
   *)                                   exit 0 ;;
 esac
 
-[ -n "${ANTHROPIC_BASE_URL:-}" ] && exit 0
+case "${ANTHROPIC_BASE_URL:-}" in
+  http://127.0.0.1:8317|http://localhost:8317|http://127.0.0.1:8318|http://localhost:8318|http://localhost:8000|http://127.0.0.1:8000)
+    exit 0
+    ;;
+esac
 
 CACHE_DIR="$HOME/.cache/my-claudecode-statusline"
 # Allow test override
