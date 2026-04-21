@@ -30,24 +30,24 @@ cat > "$CACHE_DIR/usage.json" <<EOF
 {"seven_day_sonnet":{"utilization":14,"resets_at":"$FUTURE_ISO"},"seven_day_opus":null}
 EOF
 touch "$CACHE_DIR/usage.json"
-R=$(STATUSLINE_TEST_CACHE="$CACHE_DIR/usage.json" bash "$SCRIPT" sonnet-pct)
+R=$(ANTHROPIC_BASE_URL="" STATUSLINE_TEST_CACHE="$CACHE_DIR/usage.json" bash "$SCRIPT" sonnet-pct)
 assert_match "sonnet-pct shows percentage" "14" "$R"
 assert_match "sonnet-pct has % sign" "%" "$R"
 
 # Test: sonnet-reset
-R=$(STATUSLINE_TEST_CACHE="$CACHE_DIR/usage.json" bash "$SCRIPT" sonnet-reset)
+R=$(ANTHROPIC_BASE_URL="" STATUSLINE_TEST_CACHE="$CACHE_DIR/usage.json" bash "$SCRIPT" sonnet-reset)
 assert_match "sonnet-reset shows time" "[0-9]+(d|h|m)" "$R"
 
 # Test: opus-pct null → empty
-R=$(STATUSLINE_TEST_CACHE="$CACHE_DIR/usage.json" bash "$SCRIPT" opus-pct)
+R=$(ANTHROPIC_BASE_URL="" STATUSLINE_TEST_CACHE="$CACHE_DIR/usage.json" bash "$SCRIPT" opus-pct)
 assert_eq "opus-pct empty when null" "" "$R"
 
 # Test: opus-reset null → empty
-R=$(STATUSLINE_TEST_CACHE="$CACHE_DIR/usage.json" bash "$SCRIPT" opus-reset)
+R=$(ANTHROPIC_BASE_URL="" STATUSLINE_TEST_CACHE="$CACHE_DIR/usage.json" bash "$SCRIPT" opus-reset)
 assert_eq "opus-reset empty when null" "" "$R"
 
 # Test: unknown mode → empty
-R=$(STATUSLINE_TEST_CACHE="$CACHE_DIR/usage.json" bash "$SCRIPT" bogus)
+R=$(ANTHROPIC_BASE_URL="" STATUSLINE_TEST_CACHE="$CACHE_DIR/usage.json" bash "$SCRIPT" bogus)
 assert_eq "unknown mode exits empty" "" "$R"
 
 # Test: sonnet-burn — normal case (resets ~3 days out, half used)
@@ -57,7 +57,7 @@ cat > "$CACHE_DIR/usage.json" <<EOF
 {"seven_day_sonnet":{"utilization":50,"resets_at":"$HALF_RESET"},"seven_day_opus":null}
 EOF
 touch "$CACHE_DIR/usage.json"
-R=$(STATUSLINE_TEST_CACHE="$CACHE_DIR/usage.json" bash "$SCRIPT" sonnet-burn)
+R=$(ANTHROPIC_BASE_URL="" STATUSLINE_TEST_CACHE="$CACHE_DIR/usage.json" bash "$SCRIPT" sonnet-burn)
 assert_match "sonnet-burn shows rate" "[0-9]\.[0-9]x" "$R"
 assert_match "sonnet-burn shows projected" "ends ~[0-9]+" "$R"
 
@@ -67,7 +67,7 @@ cat > "$CACHE_DIR/usage.json" <<EOF
 {"seven_day_sonnet":{"utilization":50,"resets_at":"$PAST_ISO"},"seven_day_opus":null}
 EOF
 touch "$CACHE_DIR/usage.json"
-R=$(STATUSLINE_TEST_CACHE="$CACHE_DIR/usage.json" bash "$SCRIPT" sonnet-burn)
+R=$(ANTHROPIC_BASE_URL="" STATUSLINE_TEST_CACHE="$CACHE_DIR/usage.json" bash "$SCRIPT" sonnet-burn)
 assert_eq "sonnet-burn empty when reset passed" "" "$R"
 
 # Test: sonnet-burn — far future reset (elapsed ≤ 60) → empty
@@ -75,12 +75,22 @@ cat > "$CACHE_DIR/usage.json" <<EOF
 {"seven_day_sonnet":{"utilization":14,"resets_at":"$FUTURE_ISO"},"seven_day_opus":null}
 EOF
 touch "$CACHE_DIR/usage.json"
-R=$(STATUSLINE_TEST_CACHE="$CACHE_DIR/usage.json" bash "$SCRIPT" sonnet-burn)
+R=$(ANTHROPIC_BASE_URL="" STATUSLINE_TEST_CACHE="$CACHE_DIR/usage.json" bash "$SCRIPT" sonnet-burn)
 assert_eq "sonnet-burn empty when elapsed too short" "" "$R"
+
+# Test: gateway-backed provider should hide OAuth-only widgets
+cat > "$CACHE_DIR/usage.json" <<EOF
+{"seven_day_sonnet":{"utilization":14,"resets_at":"$FUTURE_ISO"},"seven_day_opus":{"utilization":22,"resets_at":"$HALF_RESET"}}
+EOF
+touch "$CACHE_DIR/usage.json"
+R=$(ANTHROPIC_BASE_URL="http://127.0.0.1:8317" STATUSLINE_TEST_CACHE="$CACHE_DIR/usage.json" bash "$SCRIPT" sonnet-pct)
+assert_eq "sonnet-pct empty for gateway provider" "" "$R"
+R=$(ANTHROPIC_BASE_URL="http://127.0.0.1:8317" STATUSLINE_TEST_CACHE="$CACHE_DIR/usage.json" bash "$SCRIPT" opus-line)
+assert_eq "opus-line empty for gateway provider" "" "$R"
 
 # Test: cache missing entirely → empty (no API call in test env)
 rm -f "$CACHE_DIR/usage.json"
-R=$(STATUSLINE_SKIP_FETCH=1 bash "$SCRIPT" sonnet-pct)
+R=$(ANTHROPIC_BASE_URL="" STATUSLINE_SKIP_FETCH=1 bash "$SCRIPT" sonnet-pct)
 assert_eq "empty when no cache and fetch skipped" "" "$R"
 
 rm -f "$CACHE_DIR/usage.json"

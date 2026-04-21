@@ -82,113 +82,30 @@
     ],
     [
       {
-        "id": "l5-label5h",
-        "type": "custom-text",
-        "customText": "5h:",
-        "color": "brightBlack"
-      },
-      {
-        "id": "l5-pct",
+        "id": "l5-5h",
         "type": "custom-command",
-        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-rate.sh 5h-pct",
-        "timeout": 2000,
-        "color": "brightCyan",
-        "preserveColors": false
-      },
-      {
-        "id": "l5-eta",
-        "type": "custom-text",
-        "customText": "→",
-        "color": "brightBlack"
-      },
-      {
-        "id": "l5-reset",
-        "type": "custom-command",
-        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-rate.sh 5h-reset",
-        "timeout": 2000,
-        "color": "brightBlack",
-        "preserveColors": false
-      },
-      {
-        "id": "l5-sep2",
-        "type": "separator"
-      },
-      {
-        "id": "l5-burn",
-        "type": "custom-command",
-        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-burn.sh 5h",
-        "timeout": 2000,
+        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-line.sh 5h",
+        "timeout": 2500,
         "color": "brightCyan",
         "preserveColors": false
       }
     ],
     [
       {
-        "id": "l6-label7d",
-        "type": "custom-text",
-        "customText": "7d:",
-        "color": "brightBlack"
-      },
-      {
-        "id": "l6-pct",
+        "id": "l6-7d",
         "type": "custom-command",
-        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-rate.sh 7d-pct",
-        "timeout": 2000,
-        "color": "brightMagenta",
-        "preserveColors": false
-      },
-      {
-        "id": "l6-eta",
-        "type": "custom-text",
-        "customText": "→",
-        "color": "brightBlack"
-      },
-      {
-        "id": "l6-reset",
-        "type": "custom-command",
-        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-rate.sh 7d-reset",
-        "timeout": 2000,
-        "color": "brightBlack",
-        "preserveColors": false
-      },
-      {
-        "id": "l6-sep2",
-        "type": "separator"
-      },
-      {
-        "id": "l6-burn",
-        "type": "custom-command",
-        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-burn.sh 7d",
-        "timeout": 2000,
+        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-line.sh 7d",
+        "timeout": 2500,
         "color": "brightMagenta",
         "preserveColors": false
       }
     ],
     [
-      { "id": "l7-label", "type": "custom-text", "customText": "Son:", "color": "brightBlack" },
       {
-        "id": "l7-pct",
+        "id": "l7-sonnet",
         "type": "custom-command",
-        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-model.sh sonnet-pct",
-        "timeout": 3000,
-        "color": "brightCyan",
-        "preserveColors": false
-      },
-      { "id": "l7-eta", "type": "custom-text", "customText": "→", "color": "brightBlack" },
-      {
-        "id": "l7-reset",
-        "type": "custom-command",
-        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-model.sh sonnet-reset",
-        "timeout": 3000,
-        "color": "brightBlack",
-        "preserveColors": false
-      },
-      { "id": "l7-sep2", "type": "separator" },
-      {
-        "id": "l7-burn",
-        "type": "custom-command",
-        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-model.sh sonnet-burn",
-        "timeout": 3000,
+        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-line.sh sonnet",
+        "timeout": 3500,
         "color": "brightCyan",
         "preserveColors": false
       }
@@ -197,8 +114,8 @@
       {
         "id": "l8-opus",
         "type": "custom-command",
-        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-model.sh opus-line",
-        "timeout": 3000,
+        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-line.sh opus",
+        "timeout": 3500,
         "color": "brightMagenta",
         "preserveColors": false
       }

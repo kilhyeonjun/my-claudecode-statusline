@@ -13,6 +13,8 @@ case "$MODE" in
   *)                                   exit 0 ;;
 esac
 
+[ -n "${ANTHROPIC_BASE_URL:-}" ] && exit 0
+
 CACHE_DIR="$HOME/.cache/my-claudecode-statusline"
 # Allow test override
 CACHE_FILE="${STATUSLINE_TEST_CACHE:-$CACHE_DIR/usage.json}"
