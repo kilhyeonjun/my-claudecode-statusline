@@ -12,6 +12,16 @@
         "type": "separator"
       },
       {
+        "id": "l1-effort",
+        "type": "thinking-effort",
+        "color": "brightMagenta",
+        "rawValue": true
+      },
+      {
+        "id": "l1-sep1b",
+        "type": "separator"
+      },
+      {
         "id": "l1-autopilot",
         "type": "custom-command",
         "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-autopilot.sh",

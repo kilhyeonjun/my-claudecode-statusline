@@ -11,10 +11,10 @@ instead of after.
 ## What it shows
 
 ```
- Model: Opus 4.6  |  🔓 ON  |  ⎇ main  |  +5 ~3
+ Model: Opus 4.6  |  xhigh  |  🔓 ON  |  ⎇ main  |  +5 ~3
  cwd: /path/to/project
  Context: [██████████░░░░░░] 650k/1000k (65%)  |  Session: 15m  |  🔥 full in 8m
- 5h: 80.0% → 3hr 59m 🔥 4.0x  |  7d: 60.0% → 3d 23hr 59m ⚠ 1.4x
+ 5h 80% →1h 🔥 4.0x → 100% in 15m | 7d 60% →4d ⚠ 1.4x → ends ~93%
  Skills: brainstorming, commit, debug
 ```
 
@@ -32,6 +32,10 @@ four lines.
   (via `PreToolUse` + `UserPromptSubmit` hooks registered by the installer).
 - **Rate limits with ETA**: 5h and 7d usage percentages alongside
   "time until reset", combined onto a single line.
+- **Thinking effort**: ccstatusline's built-in `thinking-effort` widget
+  (≥2.2.9), session-scoped — resolves from StatusJSON, then the transcript's
+  `/effort` output, then `~/.claude/settings.json`. Ultracode shows as
+  `xhigh`.
 
 Subagent activity is shown natively by Claude Code (≥2.1.198) in-session, so
 this statusline no longer duplicates it. Per-model (Sonnet/Opus) usage rows
