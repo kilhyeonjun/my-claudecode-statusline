@@ -24,25 +24,25 @@
         "type": "separator"
       },
       {
-        "id": "l1-cwd",
-        "type": "current-working-dir",
-        "color": "blue"
-      }
-    ],
-    [
-      {
-        "id": "l2-branch",
+        "id": "l1-branch",
         "type": "git-branch",
         "color": "magenta"
       },
       {
-        "id": "l2-sep1",
+        "id": "l1-sep3",
         "type": "separator"
       },
       {
-        "id": "l2-changes",
+        "id": "l1-changes",
         "type": "git-changes",
         "color": "yellow"
+      }
+    ],
+    [
+      {
+        "id": "l2-cwd",
+        "type": "current-working-dir",
+        "color": "blue"
       }
     ],
     [
@@ -56,9 +56,18 @@
         "type": "separator"
       },
       {
+        "id": "l3-clock",
+        "type": "session-clock",
+        "color": "brightBlack"
+      },
+      {
+        "id": "l3-sep2",
+        "type": "separator"
+      },
+      {
         "id": "l3-ctxburn",
         "type": "custom-command",
-        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-burn.sh ctx",
+        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-burn.sh",
         "timeout": 2000,
         "color": "brightBlack",
         "preserveColors": false
@@ -66,25 +75,9 @@
     ],
     [
       {
-        "id": "l4-cost",
-        "type": "session-cost",
-        "color": "brightYellow"
-      },
-      {
-        "id": "l4-sep1",
-        "type": "separator"
-      },
-      {
-        "id": "l4-clock",
-        "type": "session-clock",
-        "color": "brightBlack"
-      }
-    ],
-    [
-      {
-        "id": "l5-5h",
+        "id": "l4-usage",
         "type": "custom-command",
-        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-line.sh 5h",
+        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-usage.sh",
         "timeout": 2500,
         "color": "brightCyan",
         "preserveColors": false
@@ -92,37 +85,7 @@
     ],
     [
       {
-        "id": "l6-7d",
-        "type": "custom-command",
-        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-line.sh 7d",
-        "timeout": 2500,
-        "color": "brightMagenta",
-        "preserveColors": false
-      }
-    ],
-    [
-      {
-        "id": "l7-sonnet",
-        "type": "custom-command",
-        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-line.sh sonnet",
-        "timeout": 3500,
-        "color": "brightCyan",
-        "preserveColors": false
-      }
-    ],
-    [
-      {
-        "id": "l8-opus",
-        "type": "custom-command",
-        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-line.sh opus",
-        "timeout": 3500,
-        "color": "brightMagenta",
-        "preserveColors": false
-      }
-    ],
-    [
-      {
-        "id": "l9-skills",
+        "id": "l5-skills",
         "type": "skills",
         "color": "brightMagenta",
         "metadata": {
@@ -130,16 +93,6 @@
           "hideWhenEmpty": "true",
           "listLimit": "6"
         }
-      }
-    ],
-    [
-      {
-        "id": "l10-agents",
-        "type": "custom-command",
-        "commandPath": "bash __CLAUDE_SCRIPTS__/statusline-subagents.sh",
-        "timeout": 2500,
-        "color": "brightGreen",
-        "preserveColors": false
       }
     ]
   ],

@@ -1,47 +1,47 @@
 # my-claudecode-statusline
 
 Personal [Claude Code](https://claude.com/claude-code) status line on top of
-[ccstatusline](https://github.com/sirmalloc/ccstatusline), with burn-rate analysis,
-subagent tracking, and skills usage.
+[ccstatusline](https://github.com/sirmalloc/ccstatusline), with burn-rate analysis
+and skills usage.
 
-An 8-line status bar designed for readability and pacing awareness — so you can
-slow down before hitting a 5-hour limit instead of after.
+A 4-line status bar (plus a 5th dynamic skills line) designed for readability
+and pacing awareness — so you can slow down before hitting a 5-hour limit
+instead of after.
 
 ## What it shows
 
 ```
- Model: Opus 4.6  |  cwd: /path/to/project
- ⎇ main  |  +5 ~3
- Context: [██████████░░░░░░] 650k/1000k (65%)  |  🔥 full in 8m
- Cost: $3.45  |  Session: 15m
- 5h:  80.0%  →  3hr 59m  |  🔥 4.0x → 100% in 15m
- 7d:  60.0%  →  3d 23hr 59m  |  🔥 1.4x → 100% in 2d
+ Model: Opus 4.6  |  🔓 ON  |  ⎇ main  |  +5 ~3
+ cwd: /path/to/project
+ Context: [██████████░░░░░░] 650k/1000k (65%)  |  Session: 15m  |  🔥 full in 8m
+ 5h: 80.0% → 3hr 59m 🔥 4.0x  |  7d: 60.0% → 3d 23hr 59m ⚠ 1.4x
  Skills: brainstorming, commit, debug
- 🤖 ▶ Explore 2m · ▶ Plan 30s · ✓ code-reviewer 2m
 ```
 
-Empty lines (skills, subagents) are auto-hidden, so an idle session collapses to
-six lines.
+The skills line is auto-hidden when empty, so an idle session collapses to
+four lines.
 
 ## Features
 
-- **Burn rate** for 5h / 7d rate limits and the context window: projected
-  end-of-window usage, ETA to 100%, and a pace multiplier so you know whether
-  you're running hot (`🔥 2.0x`), on pace (`⚠ 1.0x`), or underusing (`· 0.3x`).
+- **Burn rate** for the context window: projected end-of-window usage, ETA to
+  100%, and a pace multiplier so you know whether you're running hot
+  (`🔥 2.0x`), on pace (`⚠ 1.0x`), or underusing (`· 0.3x`).
 - **Context ETA**: "full in 8m" tells you when to run `/compact`, before
   context fills up mid-thought.
-- **Subagent monitor**: lists currently running `Task` / `Agent` subagents with
-  elapsed time, plus recently completed ones (5-minute fade) marked with
-  `✓` or `✗`.
 - **Skills list**: shows which Claude Code skills have fired this session
   (via `PreToolUse` + `UserPromptSubmit` hooks registered by the installer).
 - **Rate limits with ETA**: 5h and 7d usage percentages alongside
-  "time until reset".
+  "time until reset", combined onto a single line.
+
+Subagent activity is shown natively by Claude Code (≥2.1.198) in-session, so
+this statusline no longer duplicates it. Per-model (Sonnet/Opus) usage rows
+and session cost were dropped — the usage API doesn't break those numbers out
+per model, and cost is noise on a subscription account.
 
 ## Requirements
 
-- **macOS** (primary target). Linux is best-effort — the subagent script has a
-  GNU `date` fallback but has not been extensively tested there.
+- **macOS** (primary target). Linux is best-effort — the shared helper script
+  has a GNU `date` fallback but has not been extensively tested there.
 - [`jq`](https://jqlang.github.io/jq/)
 - [`bun`](https://bun.sh) or [`node` + `npm`](https://nodejs.org) (for the
   `ccstatusline` npm package)
@@ -104,18 +104,13 @@ The ccstatusline config lives at `ccstatusline/settings.json` as a template
 with a single placeholder (`__CLAUDE_SCRIPTS__`) that the installer replaces
 with the real path.
 
-| Line | Widgets                                                   |
-| ---- | --------------------------------------------------------- |
-| 1    | `model` · `autopilot` · `current-working-dir`             |
-| 2    | `git-branch` · `git-changes`                              |
-| 3    | `context-bar` · custom-command (`statusline-burn.sh ctx`) |
-| 4    | `session-cost` · `session-clock`                          |
-| 5    | custom-command (`statusline-line.sh 5h`)                  |
-| 6    | custom-command (`statusline-line.sh 7d`)                  |
-| 7    | custom-command (`statusline-line.sh sonnet`)              |
-| 8    | custom-command (`statusline-line.sh opus`)                |
-| 9    | `skills` (list mode, `hideWhenEmpty`)                     |
-| 10   | custom-command (`statusline-subagents.sh`)                |
+| Line | Widgets                                                       |
+| ---- | -------------------------------------------------------------- |
+| 1    | `model` · custom-command (`statusline-autopilot.sh`) · `git-branch` · `git-changes` |
+| 2    | `current-working-dir`                                          |
+| 3    | `context-bar` · `session-clock` · custom-command (`statusline-burn.sh`) |
+| 4    | custom-command (`statusline-usage.sh`)                          |
+| 5    | `skills` (list mode, `hideWhenEmpty`)                           |
 
 `flexMode` is set to `"full"` — the status line uses the full terminal width
 instead of the default `full-minus-40`, which avoids truncating long paths.
@@ -126,14 +121,9 @@ Edit `~/.config/ccstatusline/settings.json` directly (it is regular JSON, and
 a TUI is available via `ccstatusline`), or run `ccstatusline` without stdin
 to get an interactive widget editor from the upstream project.
 
-To tweak the subagent display thresholds, edit
-`~/.claude/scripts/statusline-subagents.sh`:
-
-- `MAX_AGE_SEC=300` — how many seconds a completed subagent stays visible
-- `MAX_SHOW=6` — maximum number of subagents to list
-
-To tweak burn-rate thresholds, edit `~/.claude/scripts/statusline-burn.sh`:
-the `awk` block near the bottom decides when to show 🔥 vs ⚠ vs ✓ vs ·.
+To tweak burn-rate thresholds, edit `~/.claude/scripts/statusline-burn.sh`
+(context window only) or the shared logic in `~/.claude/scripts/statusline-lib.sh`:
+the `awk` block decides when to show 🔥 vs ⚠ vs ✓ vs ·.
 
 ## How burn rate is calculated
 
@@ -156,12 +146,9 @@ estimated.
 
 ## Notes
 
-- **Rate limit widgets (5h, 7d) require a Claude.ai Pro/Max subscription.**
-  API-only accounts will see `ctx` burn but no 5h/7d rows. The combined line
-  script exits silently when `rate_limits` is absent, so no "no data" noise.
-- **Gateway-backed sessions hide OAuth-only model rows.** Local Kiro/Codex-style
-  gateways (`localhost` / `127.0.0.1` on ports `8000`, `8317`, `8318`) suppress
-  the Sonnet/Opus usage rows because those rows depend on Anthropic OAuth usage.
+- **The usage line (5h, 7d) requires a Claude.ai Pro/Max subscription.**
+  API-only accounts will see context burn but a blank usage line. The script
+  exits silently when `rate_limits` is absent, so no "no data" noise.
 - **Tested against ccstatusline v2.2.8** as of 2026-04. If widget type names
   change upstream, the template may need updates.
 - The Skills widget shows nothing until a skill is actually invoked, because

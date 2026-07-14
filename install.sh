@@ -57,7 +57,7 @@ printf '\n'
 
 case "$(uname -s)" in
   Darwin) ok "macOS detected" ;;
-  Linux)  warn "Linux detected — statusline-subagents.sh uses a BSD/GNU date fallback but is primarily tested on macOS" ;;
+  Linux)  warn "Linux detected — statusline-lib.sh uses a BSD/GNU date fallback but is primarily tested on macOS" ;;
   *) err "Unsupported OS: $(uname -s)"; exit 1 ;;
 esac
 
@@ -108,7 +108,7 @@ info "installing helper scripts to $CLAUDE_SCRIPTS"
 if [ "$DRY_RUN" = "0" ]; then
   mkdir -p "$CLAUDE_SCRIPTS"
 fi
-for script in statusline-subagents.sh statusline-burn.sh statusline-rate.sh statusline-model.sh statusline-line.sh statusline-autopilot.sh; do
+for script in statusline-autopilot.sh statusline-burn.sh statusline-usage.sh statusline-lib.sh; do
   src="$REPO_DIR/scripts/$script"
   dst="$CLAUDE_SCRIPTS/$script"
   if [ ! -f "$src" ]; then
@@ -121,6 +121,19 @@ for script in statusline-subagents.sh statusline-burn.sh statusline-rate.sh stat
     cp "$src" "$dst"
     chmod +x "$dst"
     ok "installed $dst"
+  fi
+done
+
+info "removing retired scripts from $CLAUDE_SCRIPTS"
+for script in statusline-line.sh statusline-rate.sh statusline-model.sh statusline-subagents.sh; do
+  dst="$CLAUDE_SCRIPTS/$script"
+  if [ -f "$dst" ]; then
+    if [ "$DRY_RUN" = "1" ]; then
+      info "[dry-run] would remove $dst"
+    else
+      rm -f "$dst"
+      ok "removed $dst"
+    fi
   fi
 done
 
@@ -221,7 +234,7 @@ printf '\n%sinstallation complete%s\n\n' "$BOLD$GREEN" "$RESET"
 cat <<EOF
 What's installed:
   • ccstatusline:         $CCSL_BIN
-  • helper scripts:       $CLAUDE_SCRIPTS/statusline-{subagents,burn,rate,model,line,autopilot}.sh
+  • helper scripts:       $CLAUDE_SCRIPTS/statusline-{autopilot,burn,usage,lib}.sh
   • ccstatusline config:  $CCSL_SETTINGS
   • Claude Code settings: statusLine + Skill hooks merged into $SETTINGS_JSON
 
@@ -233,6 +246,6 @@ Next steps:
 Notes:
   • Running this script again is safe (idempotent) — it will remove stale
     ccstatusline hook entries before re-adding fresh ones.
-  • Rate-limit widgets (5h, 7d) only show data for Claude.ai Pro/Max accounts.
-    API-only accounts will see context burn but blank 5h/7d lines.
+  • The usage line (5h/7d) only shows data for Claude.ai Pro/Max accounts.
+    API-only accounts will see context burn but a blank usage line.
 EOF
